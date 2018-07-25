@@ -90,7 +90,8 @@ module DE10_Standard_default(
 	inout 		    [35:0]		GPIO
 );
 
-
+parameter COUNT_HIGH		= 31;
+parameter COUNT_LOW		= 28;
 
 //=======================================================
 //  REG/WIRE declarations
@@ -155,7 +156,7 @@ assign AUD_ADCLRCK	 =	AUD_DACLRCK;
 //	Enable TV Decoder
 assign	TD_RESET_N	=	KEY[0];
 
-
+/*
 always@(posedge CLOCK_50 or negedge KEY[0])
     begin
         if(!KEY[0])
@@ -163,7 +164,7 @@ always@(posedge CLOCK_50 or negedge KEY[0])
         else
 			 Cont	<=	Cont+1;
     end
-	 
+*/ 
 
 always@(posedge CLOCK_50)
     begin
@@ -173,8 +174,33 @@ always@(posedge CLOCK_50)
     end	 
 
 
-assign	LEDR      	=	KEY[0]? {	Cont[25:24],Cont[25:24],Cont[25:24],Cont[25:24],Cont[25:24]	}:10'h3ff;
-assign	mSEG7_DIG	=	KEY[0]? {	Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24],Cont[27:24] } :{6{4'b1000}};
+always@(negedge KEY[0])
+begin
+	Cont[3:0] <= Cont[3:0] + 1;
+end
+
+always@(negedge KEY[1])
+begin
+	Cont[7:4] <= Cont[7:4] + 1;
+end
+
+always@(negedge KEY[2])
+begin
+	Cont[11:8] <= Cont[11:8] + 1;
+end
+
+always@(negedge KEY[3])
+begin
+	Cont[15:12] <= Cont[15:12] + 1;
+end
+
+assign	LEDR      	=	10'h0;
+assign	mSEG7_DIG	=	KEY[0]? {	Cont[23:20],
+												Cont[19:16],
+												Cont[15:12],
+												Cont[11:8],
+												Cont[7:4],
+												Cont[3:0] } :{6{4'b1000}};
 
 //7 segment LUT
 
